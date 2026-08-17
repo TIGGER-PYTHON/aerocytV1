@@ -1056,25 +1056,6 @@ function ResultCard({ result, image }) {
             </div>
           )}
 
-          <div
-            style={{
-              marginTop: 16,
-              background: T.blueLight,
-              border: `1px solid ${T.line}`,
-              borderRadius: 12,
-              padding: "12px 14px",
-            }}
-          >
-            <h4 style={{ fontSize: 12, fontWeight: 700, color: T.blueDeep, margin: "0 0 6px" }}>
-              เกี่ยวกับ "ระยะ" ของมะเร็ง
-            </h4>
-            <p style={{ fontSize: 11.5, color: T.inkSoft, margin: 0, lineHeight: 1.6 }}>
-              โมเดลนี้จำแนกเฉพาะ "ชนิดของเซลล์" จากภาพถ่ายเซลล์วิทยาเท่านั้น ไม่ได้ระบุระยะของโรค (Stage I–IV)
-              เนื่องจากการระบุระยะต้องใช้ข้อมูลเพิ่มเติมที่ภาพเซลล์เพียงอย่างเดียวไม่สามารถบอกได้ เช่น ขนาดก้อนเนื้องอก
-              การลุกลามของต่อมน้ำเหลือง และการแพร่กระจาย ซึ่งต้องอาศัยผลตรวจทางรังสีวิทยา (CT/PET) ร่วมกับการประเมินของแพทย์
-            </p>
-          </div>
-
           <p
             style={{
               fontSize: 12,
@@ -1412,25 +1393,6 @@ function ScreeningPage({ email, onLogout }) {
               ออกจากระบบ
             </span>
           </div>
-        </div>
-      </div>
-
-      <div className="lsa-no-print" style={{ maxWidth: 1200, margin: "14px auto 0", padding: "0 40px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            background: "#FBF3DC",
-            border: "1px solid #EFDDA0",
-            borderRadius: 12,
-            padding: "10px 16px",
-            fontSize: 12.5,
-            color: "#7A5E1B",
-          }}
-        >
-          ⚠️ <b>เวอร์ชันต้นแบบ (Prototype)</b> — หน้าอัปโหลด/ประมวลผลด้านบนยังไม่ได้เชื่อมต่อโมเดล AI จริง
-          ผลลัพธ์เป็นตัวอย่างสาธิต UX เท่านั้น
         </div>
       </div>
 
