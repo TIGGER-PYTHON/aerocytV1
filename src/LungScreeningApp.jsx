@@ -1182,9 +1182,9 @@ function makeCase(id, filename, type) {
 }
 
 const CASE_GALLERY = [
-  ...[4773, 4761, 4762, 4763, 4769, 4770, 4771, 4772].map((f) => makeCase(f, `${f}.jpg`, "aca")),
-  ...[4795, 4796, 4797, 4798, 4799, 4800, 4801, 4802].map((f) => makeCase(f, `${f}.jpg`, "scc")),
-  ...[4877, 4878, 4879, 4880, 4881, 4882, 4883, 4884].map((f) => makeCase(f, `${f}.jpg`, "normal")),
+  ...[4773, [4761, "06.jpg"], [4762, "02.jpg"], [4763, "03.jpg"], [4769, "09.jpg"], 4770, 4771, 4772].map((f) => makeCase(f, `${f}.jpg`, "aca")),
+  ...[[4795, "05.jpg"], [4796, "796.jpg"], 4797, 4798, [4799, "09.jpg"], [4800, "11.jpg"], 4801, 4802].map((f) => makeCase(f, `${f}.jpg`, "scc")),
+  ...[4877, 4878, [4879,"0007.jpg]", [4880, "08.jpg"], [4881, "0001.jpg"], 4882, [4883, "13.jpg"], [4884, "04.jpg"]].map((f) => makeCase(f, `${f}.jpg`, "normal")),
 ];
 
 // Lookup by filename so the upload/analyze demo can recognize the known
