@@ -736,10 +736,8 @@ function ResultCard({ result, image }) {
     <div
       style={{
         background: T.white,
-        border: `1px solid ${T.line}`,
         borderRadius: T.radius,
         padding: 24,
-        boxShadow: T.shadow,
       }}
     >
       <style>{`
@@ -1245,7 +1243,7 @@ function ResultCard({ result, image }) {
 /* ── Curated case gallery data ──
    These are real example histology images with pre-assigned ground-truth
    labels, used ONLY for demonstrating the UI/workflow to reviewers. Results
-   here are NOT produced by a live AI model — see the banner on CaseGallery. */
+   here are NOT produced by a live AI model. */
 const GRADE_LABELS = ["เกรดสูง (Well differentiated)", "เกรดปานกลาง (Moderately differentiated)", "เกรดต่ำ (Poorly differentiated)"];
 
 function makeCase(id, filename, type) {
@@ -1257,7 +1255,7 @@ function makeCase(id, filename, type) {
     scc: "Squamous Cell Carcinoma",
   };
   const topLabel = labelMap[type];
-  const topProb = 0.81 + ((id % 17) / 100); // deterministic 81–97%, stable per case
+  const topProb = 0.85 + ((id % 12) / 100); // deterministic 85–96%, stable per case
   const remaining = 1 - topProb;
   const others = ["เซลล์ปกติ (Normal)", "Adenocarcinoma", "Squamous Cell Carcinoma"].filter((l) => l !== topLabel);
   const split = 0.3 + ((id % 7) / 20);
@@ -1267,7 +1265,7 @@ function makeCase(id, filename, type) {
     { label: others[1], prob: remaining * (1 - split) },
   ];
   const gradeIndex = type === "normal" ? null : id % 3;
-  const gradeProb = gradeIndex === null ? null : 0.81 + ((id % 17) / 100);
+  const gradeProb = gradeIndex === null ? null : 0.85 + ((id % 12) / 100);
   return {
     id,
     filename,
@@ -1292,357 +1290,6 @@ const CASE_GALLERY = [
 // of a random result — e.g. uploading "4877.jpg" always shows Normal, and
 // uploading "4761.jpg" always shows Adenocarcinoma with its grade.
 const CASE_BY_FILENAME = Object.fromEntries(CASE_GALLERY.map((c) => [c.filename, c]));
-
-/* ── Case gallery: curated example cases for demonstrating the 3-step
-   workflow (Detection → Classification → Grading) to reviewers. Clearly
-   labeled as pre-recorded, not live model output. ── */
-function CaseGallery() {
-  const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState(null);
-
-  const filtered = CASE_GALLERY.filter((c) => {
-    if (filter === "all") return true;
-    if (filter === "normal") return !c.abnormal;
-    if (filter === "aca") return c.abnormal && c.type === "Adenocarcinoma";
-    if (filter === "scc") return c.abnormal && c.type === "Squamous Cell Carcinoma";
-    return true;
-  });
-
-  const active = selected ?? filtered[0] ?? null;
-  const sortedProbs = active
-    ? [...active.classProbabilities].sort((a, b) => b.prob - a.prob)
-    : [];
-
-  return (
-    <div
-      style={{
-        background: T.white,
-        border: `1px solid ${T.line}`,
-        borderRadius: T.radius,
-        padding: 24,
-        boxShadow: T.shadow,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <StepBadge n="G" />
-        <h2 style={{ fontSize: 16, margin: 0, fontWeight: 600 }}>ตัวอย่างเคส (Case Gallery)</h2>
-      </div>
-      <p style={{ fontSize: 12, color: T.inkSoft, margin: "0 0 16px", lineHeight: 1.6 }}>
-        ผลลัพธ์ในส่วนนี้เป็น <b>ตัวอย่างที่บันทึกไว้ล่วงหน้า</b> สำหรับสาธิตรูปแบบการแสดงผล (Detection → Classification → Grading)
-        เท่านั้น ยังไม่ได้ประมวลผลจากโมเดล AI จริงแบบเรียลไทม์
-      </p>
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        {[
-          { key: "all", label: `ทั้งหมด (${CASE_GALLERY.length})` },
-          { key: "normal", label: `ปกติ (${CASE_GALLERY.filter((c) => !c.abnormal).length})` },
-          { key: "aca", label: `Adenocarcinoma (${CASE_GALLERY.filter((c) => c.type === "Adenocarcinoma").length})` },
-          { key: "scc", label: `Squamous Cell (${CASE_GALLERY.filter((c) => c.type === "Squamous Cell Carcinoma").length})` },
-        ].map((f) => (
-          <button
-            key={f.key}
-            onClick={() => {
-              setFilter(f.key);
-              setSelected(null);
-            }}
-            style={{
-              fontFamily: "inherit",
-              fontSize: 12.5,
-              fontWeight: 600,
-              padding: "6px 13px",
-              borderRadius: 20,
-              border: `1px solid ${filter === f.key ? T.blueDeep : T.line}`,
-              background: filter === f.key ? T.blueDeep : T.white,
-              color: filter === f.key ? "#fff" : T.inkSoft,
-              cursor: "pointer",
-            }}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(64px, 1fr))",
-          gap: 8,
-          marginBottom: 20,
-        }}
-      >
-        {filtered.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setSelected(c)}
-            style={{
-              padding: 0,
-              border: `2px solid ${active?.id === c.id ? T.blueDeep : "transparent"}`,
-              borderRadius: 10,
-              overflow: "hidden",
-              cursor: "pointer",
-              background: "none",
-              lineHeight: 0,
-            }}
-          >
-            <img
-              src={c.url}
-              alt={`case ${c.id}`}
-              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
-            />
-          </button>
-        ))}
-      </div>
-
-      {active && (
-        <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 18 }}>
-          <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
-            <img
-              src={active.url}
-              alt={`case ${active.id} detail`}
-              style={{
-                width: 200,
-                height: 200,
-                objectFit: "cover",
-                borderRadius: 12,
-                border: `1px solid ${T.line}`,
-                flexShrink: 0,
-              }}
-            />
-            <div style={{ flex: 1, minWidth: 260 }}>
-              {/* Step 1: Detection */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "8px 12px",
-                  borderRadius: 10,
-                  background: active.abnormal ? T.dangerBg : T.mint,
-                  marginBottom: 10,
-                  fontSize: 12.5,
-                  fontWeight: 600,
-                  color: active.abnormal ? "#B4453B" : "#2E7A5F",
-                }}
-              >
-                1. Detection: {active.abnormal ? "พบเซลล์ผิดปกติ (Abnormal)" : "ไม่พบเซลล์ผิดปกติ (Normal)"}
-              </div>
-
-              {/* Step 2: Classification */}
-              <div style={{ marginBottom: 4, fontSize: 12, fontWeight: 700, color: T.blueDeep }}>
-                2. Classification
-              </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, marginBottom: 10 }}>
-                <tbody>
-                  {sortedProbs.map((p, i) => (
-                    <ClassProbRow
-                      key={p.label}
-                      label={p.label}
-                      pct={Math.round(p.prob * 100)}
-                      isTop={i === 0}
-                      abnormal={active.abnormal}
-                      revealed={true}
-                      isLast={i === sortedProbs.length - 1}
-                    />
-                  ))}
-                </tbody>
-              </table>
-              <ConfidenceBadge sortedProbs={sortedProbs} />
-
-              {/* Step 3: Grading — synthetic example value, clearly labeled as
-                  such since the source dataset does not include
-                  differentiation grade ground truth. */}
-              {active.grade && (
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ marginBottom: 6, fontSize: 12, fontWeight: 700, color: T.blueDeep }}>
-                    3. Grading (ระดับการแบ่งตัว)
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "9px 12px",
-                      borderRadius: 10,
-                      background: T.bg,
-                      fontSize: 12.5,
-                    }}
-                  >
-                    <span style={{ fontWeight: 600, color: T.ink }}>{active.grade}</span>
-                    <span style={{ fontWeight: 700, color: T.blueDeep }}>
-                      {Math.round(active.gradeProb * 100)}%
-                    </span>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: "#8A6D1F",
-                      background: "#FBF3DC",
-                      border: "1px solid #EFDDA0",
-                      borderRadius: 8,
-                      padding: "6px 10px",
-                      marginTop: 8,
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    ⚠️ ค่าเกรดนี้เป็น<b>ตัวอย่างสมมติสำหรับสาธิต UI เท่านั้น</b> —
-                    dataset ต้นฉบับไม่มีข้อมูลระดับการแบ่งตัวกำกับไว้จริง
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Technology / methodology showcase ── */
-function TechnologyCard() {
-  const pillars = [
-    {
-      n: 1,
-      title: "ResNet-50 (Deep CNN)",
-      subtitle: "ดวงตาที่มองเห็นลักษณะเซลล์",
-      color: T.blue,
-      points: [
-        "เรียนรู้และดึงลักษณะเฉพาะของเซลล์มะเร็งจากภาพ เช่น รูปร่าง ขนาดนิวเคลียส texture",
-        "ใช้การเรียนรู้จากภาพจำนวนมาก (Transfer Learning) ทำให้แม่นยำแม้มีข้อมูลจำกัด",
-      ],
-    },
-    {
-      n: 2,
-      title: "SEAL",
-      subtitle: "ตัวช่วยมองภาพรวมในครั้งเดียว",
-      color: T.mintAccent,
-      points: [
-        "วิเคราะห์ทั้งภาพพร้อมกันในครั้งเดียว (ไม่แยกเซลล์ทีละตัว)",
-        "แต่ละเซลล์ \"รับรู้\" บริบทของเซลล์ข้างเคียง ทำงานได้เร็วและแม่นยำขึ้น",
-      ],
-    },
-    {
-      n: 3,
-      title: "Attention-based MIL",
-      subtitle: "ตัวตัดสินใจว่าเซลล์ไหนสำคัญ",
-      color: "#E08A3C",
-      points: [
-        "AI เรียนรู้เองว่ากลุ่มเซลล์ส่วนไหนในภาพมีผลต่อการบ่งชี้ความรุนแรงมากที่สุด",
-        "เลียนแบบวิธีที่พยาธิแพทย์ใช้สายตาสแกนหาจุดผิดปกติ",
-      ],
-    },
-    {
-      n: 4,
-      title: "Ordinal Regression Head",
-      subtitle: "ตัวจัดลำดับความรุนแรง",
-      color: "#7B6FD1",
-      points: [
-        "ระดับความรุนแรง (Grade 1 → 2 → 3) มีลำดับต่อเนื่อง ไม่ใช่หมวดหมู่แยกอิสระ",
-        "ออกแบบให้ AI เข้าใจ \"ลำดับ\" ของความรุนแรง ผลลัพธ์จึงแม่นยำและสมเหตุสมผลทางคลินิกมากขึ้น",
-      ],
-    },
-  ];
-
-  return (
-    <div
-      style={{
-        background: T.white,
-        border: `1px solid ${T.line}`,
-        borderRadius: T.radius,
-        padding: 24,
-        boxShadow: T.shadow,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <div
-          style={{
-            width: 26,
-            height: 26,
-            borderRadius: "50%",
-            background: T.blueLight,
-            color: T.blueDeep,
-            fontSize: 13,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          🧬
-        </div>
-        <h2 style={{ fontSize: 16, margin: 0, fontWeight: 600 }}>เทคโนโลยีที่ใช้ในระบบ</h2>
-      </div>
-      <p style={{ fontSize: 12, color: T.inkSoft, margin: "0 0 16px", lineHeight: 1.6 }}>
-        4 องค์ประกอบหลักที่ออกแบบไว้สำหรับวิเคราะห์ความรุนแรงของเซลล์มะเร็งปอด
-        ผสาน Deep Learning ขั้นสูงเพื่อความแม่นยำ ความเร็ว และความเข้าใจบริบททางคลินิก
-      </p>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
-        }}
-      >
-        {pillars.map((p) => (
-          <div
-            key={p.n}
-            style={{
-              border: `1px solid ${T.line}`,
-              borderRadius: 14,
-              padding: 16,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <div
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: "50%",
-                  background: p.color,
-                  color: "#fff",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                {p.n}
-              </div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: T.ink }}>{p.title}</div>
-            </div>
-            <div style={{ fontSize: 11.5, color: T.inkSoft, fontStyle: "italic", margin: "0 0 8px 32px" }}>
-              "{p.subtitle}"
-            </div>
-            <ul style={{ margin: "0 0 0 32px", padding: 0, listStyle: "none" }}>
-              {p.points.map((pt, i) => (
-                <li
-                  key={i}
-                  style={{
-                    fontSize: 11.5,
-                    color: T.inkSoft,
-                    lineHeight: 1.6,
-                    marginBottom: 4,
-                    paddingLeft: 12,
-                    position: "relative",
-                  }}
-                >
-                  <span style={{ position: "absolute", left: 0, color: p.color }}>•</span>
-                  {pt}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <p style={{ fontSize: 11, color: T.inkSoft, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>
-        รายละเอียดสถาปัตยกรรมนี้เป็นแผนการออกแบบระบบ ยังอยู่ระหว่างการพัฒนาและตรวจสอบความถูกต้อง (validation) ก่อนใช้งานจริง
-      </p>
-    </div>
-  );
-}
 
 function ScreeningPage({ email, onLogout }) {
   const [images, setImages] = useState([]);
@@ -1728,7 +1375,7 @@ function ScreeningPage({ email, onLogout }) {
     // (predicted) class always lands strictly between 80% and 97%
     // confidence. Replace with real model output from your backend.
     const topIndex = Math.floor(Math.random() * CLASS_LABELS.length);
-    const topProb = (81 + Math.random() * 16) / 100; // 0.81–0.97
+    const topProb = (85 + Math.random() * 11) / 100; // 0.85–0.96
     const remaining = 1 - topProb;
     const otherIdxs = CLASS_LABELS.map((_, i) => i).filter((i) => i !== topIndex);
     const split = Math.random();
@@ -1746,7 +1393,7 @@ function ScreeningPage({ email, onLogout }) {
     const grade = abnormal
       ? GRADE_LABELS[Math.floor(Math.random() * GRADE_LABELS.length)]
       : null;
-    const gradeProb = abnormal ? (81 + Math.random() * 16) / 100 : null;
+    const gradeProb = abnormal ? (85 + Math.random() * 11) / 100 : null;
     return {
       abnormal,
       type: abnormal ? top.label : "-",
@@ -1862,7 +1509,7 @@ function ScreeningPage({ email, onLogout }) {
           }}
         >
           ⚠️ <b>เวอร์ชันต้นแบบ (Prototype)</b> — หน้าอัปโหลด/ประมวลผลด้านบนยังไม่ได้เชื่อมต่อโมเดล AI จริง
-          ผลลัพธ์เป็นตัวอย่างสาธิต UX เท่านั้น ส่วน "ตัวอย่างเคส" ด้านล่างใช้ภาพจริงพร้อม label ที่กำหนดไว้ล่วงหน้าเพื่อสาธิตรูปแบบการแสดงผล
+          ผลลัพธ์เป็นตัวอย่างสาธิต UX เท่านั้น
         </div>
       </div>
 
@@ -1880,7 +1527,6 @@ function ScreeningPage({ email, onLogout }) {
         <div className="lsa-no-print" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <UploadCard images={images} onAddFiles={addFiles} onRemove={removeImage} />
           <CriteriaCard />
-          <TechnologyCard />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -1888,10 +1534,6 @@ function ScreeningPage({ email, onLogout }) {
             <ProcessCard disabled={images.length === 0} loading={loading} onSubmit={handleSubmit} />
           </div>
           <ResultCard result={result} image={analyzedImage} />
-        </div>
-
-        <div className="lsa-no-print">
-          <CaseGallery />
         </div>
       </div>
 
