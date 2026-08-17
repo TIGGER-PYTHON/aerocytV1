@@ -701,7 +701,6 @@ function ConfidenceBadge({ sortedProbs }) {
 /* ── Result card ── */
 function ResultCard({ result, image }) {
   const [revealStep, setRevealStep] = useState(0);
-  const [activeCellId, setActiveCellId] = useState(null);
   const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
@@ -710,7 +709,6 @@ function ResultCard({ result, image }) {
       return;
     }
     setRevealStep(0);
-    setActiveCellId(null);
     setZoomOpen(false);
     const timers = [
       setTimeout(() => setRevealStep(1), 150),
@@ -719,13 +717,6 @@ function ResultCard({ result, image }) {
       setTimeout(() => setRevealStep(4), 2000),
     ];
     return () => timers.forEach(clearTimeout);
-  }, [result]);
-
-  useEffect(() => {
-    if (Array.isArray(result?.cells) && result.cells.length > 0 && activeCellId === null) {
-      const flagged = result.cells.find((c) => c.flagged);
-      setActiveCellId((flagged || result.cells[0]).id);
-    }
   }, [result]);
 
   const sortedProbs = Array.isArray(result?.classProbabilities)
@@ -742,10 +733,6 @@ function ResultCard({ result, image }) {
     >
       <style>{`
         @keyframes lsa-fadeInUp { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes lsa-boxIn { from { opacity:0; transform:scale(0.82);} to { opacity:1; transform:scale(1);} }
-        .lsa-cellbox { animation: lsa-boxIn 0.45s cubic-bezier(0.16,1,0.3,1) both; transform-origin: center; cursor: pointer; }
-        .lsa-cellbox.flagged rect:first-child { animation: lsa-pulse 1.8s ease-in-out infinite; }
-        @keyframes lsa-pulse { 0%,100% { stroke-opacity:1; } 50% { stroke-opacity:0.45; } }
         @keyframes lsa-modalIn { from { opacity:0; transform:scale(0.96);} to { opacity:1; transform:scale(1);} }
       `}</style>
 
@@ -922,53 +909,10 @@ function ResultCard({ result, image }) {
                     objectFit: "cover",
                   }}
                 />
-                <svg
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-                >
-                  {result.cells.map((c, i) => {
-                    const isActive = c.id === activeCellId;
-                    return (
-                      <g
-                        key={c.id}
-                        className={`lsa-cellbox${c.flagged ? " flagged" : ""}`}
-                        style={{ animationDelay: revealStep >= 1 ? `${120 + i * 110}ms` : "0ms" }}
-                        onClick={() => setActiveCellId(c.id)}
-                      >
-                        {isActive && (
-                          <rect
-                            x={c.x - 1.4}
-                            y={c.y - 1.4}
-                            width={c.w + 2.8}
-                            height={c.h + 2.8}
-                            rx="3"
-                            fill="none"
-                            stroke={T.blueDeep}
-                            strokeWidth="1"
-                            strokeDasharray="2,1.4"
-                            vectorEffect="non-scaling-stroke"
-                          />
-                        )}
-                        <rect
-                          x={c.x}
-                          y={c.y}
-                          width={c.w}
-                          height={c.h}
-                          rx="2"
-                          fill="none"
-                          stroke={c.flagged ? "#B4453B" : "#1F6B4A"}
-                          strokeWidth={c.flagged ? 3 : 2.4}
-                          vectorEffect="non-scaling-stroke"
-                        />
-                      </g>
-                    );
-                  })}
-                </svg>
               </div>
               <p style={{ fontSize: 11, color: T.inkSoft, marginTop: 8, lineHeight: 1.6 }}>
-                โมเดลค้นหาและตีกรอบเซลล์แต่ละเซลล์ในภาพก่อน (แบบเดียวกับการทำ object detection / segmentation)
-                กรอบสีแดงคือเซลล์ที่มีลักษณะเข้าข่ายผิดปกติ ส่วนกรอบสีเขียวคือเซลล์ที่ลักษณะปกติ
+                โมเดลค้นหาเซลล์แต่ละเซลล์ในภาพก่อน (แบบเดียวกับการทำ object detection / segmentation)
+                ก่อนนำไปจำแนกประเภทในขั้นตอนถัดไป
               </p>
             </div>
           )}
@@ -1208,29 +1152,6 @@ function ResultCard({ result, image }) {
                 alt="ภาพเซลล์ขยาย"
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
               />
-              {Array.isArray(result?.cells) && (
-                <svg
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-                >
-                  {result.cells.map((c) => (
-                    <g key={c.id}>
-                      <rect
-                        x={c.x}
-                        y={c.y}
-                        width={c.w}
-                        height={c.h}
-                        rx="2"
-                        fill="none"
-                        stroke={c.flagged ? "#B4453B" : "#1F6B4A"}
-                        strokeWidth={c.flagged ? 3 : 2.4}
-                        vectorEffect="non-scaling-stroke"
-                      />
-                    </g>
-                  ))}
-                </svg>
-              )}
             </div>
           </div>
         </div>
