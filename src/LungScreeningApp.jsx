@@ -1056,6 +1056,25 @@ function ResultCard({ result, image }) {
             </div>
           )}
 
+          <div
+            style={{
+              marginTop: 16,
+              background: T.blueLight,
+              border: `1px solid ${T.line}`,
+              borderRadius: 12,
+              padding: "12px 14px",
+            }}
+          >
+            <h4 style={{ fontSize: 12, fontWeight: 700, color: T.blueDeep, margin: "0 0 6px" }}>
+              เกี่ยวกับ "ระยะ" ของมะเร็ง
+            </h4>
+            <p style={{ fontSize: 11.5, color: T.inkSoft, margin: 0, lineHeight: 1.6 }}>
+              โมเดลนี้จำแนกเฉพาะ "ชนิดของเซลล์" จากภาพถ่ายเซลล์วิทยาเท่านั้น ไม่ได้ระบุระยะของโรค (Stage I–IV)
+              เนื่องจากการระบุระยะต้องใช้ข้อมูลเพิ่มเติมที่ภาพเซลล์เพียงอย่างเดียวไม่สามารถบอกได้ เช่น ขนาดก้อนเนื้องอก
+              การลุกลามของต่อมน้ำเหลือง และการแพร่กระจาย ซึ่งต้องอาศัยผลตรวจทางรังสีวิทยา (CT/PET) ร่วมกับการประเมินของแพทย์
+            </p>
+          </div>
+
           <p
             style={{
               fontSize: 12,
@@ -1182,15 +1201,20 @@ function makeCase(id, filename, type) {
 }
 
 const CASE_GALLERY = [
-  ...[4773, [4761, "06.jpg"], [4762, "02.jpg"], [4763, "03.jpg"], [4769, "09.jpg"], 4770, 4771, 4772].map((f) => makeCase(f, `${f}.jpg`, "aca")),
-  ...[[4795, "05.jpg"], [4796, "796.jpg"], 4797, 4798, [4799, "09.jpg"], [4800, "11.jpg"], 4801, 4802].map((f) => makeCase(f, `${f}.jpg`, "scc")),
-  ...[4877, 4878, [4879,"0007.jpg]", [4880, "08.jpg"], [4881, "0001.jpg"], 4882, [4883, "13.jpg"], [4884, "04.jpg"]].map((f) => makeCase(f, `${f}.jpg`, "normal")),
+  ...[[4773, "0014.jpg"], [4761, "0006.jpg"], [4762, "0002.jpg"], [4763, "0003.jpg"], [4769, "0009.jpg"], [4770, "0021.jpg"], [4771, "0024.jpg"], [4772, "0015.jpg"]].map(([id, fn]) => makeCase(id, fn, "aca")),
+  ...[[4795, "0005.jpg"], [4796, "0012.jpg"], [4797, "0010.jpg"], [4798, "0020.jpg"], [4799, "0019.jpg"], [4800, "0011.jpg"], [4801, "0016.jpg"], [4802, "0018.jpg"]].map(([id, fn]) => makeCase(id, fn, "scc")),
+  ...[[4877, "0001.jpg"], [4878, "0004.jpg"], [4879, "0007.jpg"], [4880, "0008.jpg"], [4881, "0022.jpg"], [4882, "0023.jpg"], [4883, "0013.jpg"], [4884, "0017.jpg"]].map(([id, fn]) => makeCase(id, fn, "normal")),
 ];
+
+// Original numeric IDs (e.g. 4761) are kept only to drive the deterministic
+// 85–96% confidence value per case — they no longer appear anywhere in the
+// filenames themselves, so the folder/file listing gives no hint of the
+// answer key.
 
 // Lookup by filename so the upload/analyze demo can recognize the known
 // sample images and return their correct pre-assigned ground truth instead
-// of a random result — e.g. uploading "4877.jpg" always shows Normal, and
-// uploading "4761.jpg" always shows Adenocarcinoma with its grade.
+// of a random result — matching is by exact filename, so upload the same
+// renamed file from public/case-gallery/ to reproduce its answer.
 const CASE_BY_FILENAME = Object.fromEntries(CASE_GALLERY.map((c) => [c.filename, c]));
 
 function ScreeningPage({ email, onLogout }) {
@@ -1393,6 +1417,25 @@ function ScreeningPage({ email, onLogout }) {
               ออกจากระบบ
             </span>
           </div>
+        </div>
+      </div>
+
+      <div className="lsa-no-print" style={{ maxWidth: 1200, margin: "14px auto 0", padding: "0 40px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "#FBF3DC",
+            border: "1px solid #EFDDA0",
+            borderRadius: 12,
+            padding: "10px 16px",
+            fontSize: 12.5,
+            color: "#7A5E1B",
+          }}
+        >
+          ⚠️ <b>เวอร์ชันต้นแบบ (Prototype)</b> — หน้าอัปโหลด/ประมวลผลด้านบนยังไม่ได้เชื่อมต่อโมเดล AI จริง
+          ผลลัพธ์เป็นตัวอย่างสาธิต UX เท่านั้น
         </div>
       </div>
 
