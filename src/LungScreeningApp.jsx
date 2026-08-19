@@ -782,9 +782,6 @@ function ResultCard({ result, image }) {
       </div>
 
       {!result ? (
-        <div style={{ textAlign: "center", padding: "30px 10px", color: T.inkSoft, fontSize: 13 }}>
-          ผลการคัดกรองจะแสดงที่นี่หลังประมวลผล
-        </div>
       ) : (
         <div>
           <div
