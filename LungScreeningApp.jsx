@@ -177,7 +177,7 @@ function LoginPage({ onLogin }) {
             lineHeight: 1.6,
           }}
         >
-          สำหรับบุคลากรทางการแพทย์เท่านั้น · เว็บไซต์นี้เป็นเว็บไซต์ทดลอง
+          สำหรับบุคลากรทางการแพทย์เท่านั้น
         </p>
       </div>
     </div>
@@ -659,7 +659,6 @@ function ClassProbRow({ label, pct, isTop, abnormal, revealed, isLast }) {
   );
 }
 
-/* ── Feature radar chart (pure SVG, no deps) ── */
 /* ── Confidence / certainty badge ── */
 function ConfidenceBadge({ sortedProbs }) {
   if (sortedProbs.length < 2) return null;
@@ -782,8 +781,43 @@ function ResultCard({ result, image }) {
       </div>
 
       {!result ? (
-        <div style={{ textAlign: "center", padding: "30px 10px", color: "rgb(92, 116, 136)", fontSize: 13 }}>
-          ผลการคัดกรองจะแสดงที่นี่หลังประมวลผล
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "48px 20px",
+          }}
+        >
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: "50%",
+              background: T.blueLight,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 14,
+              flexShrink: 0,
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#4A90C4" strokeWidth="1.8" />
+              <path
+                d="M9.5 12.5l1.8 1.8L15 10.2"
+                stroke="#4A90C4"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <p style={{ fontSize: 13.5, color: T.inkSoft, margin: 0, lineHeight: 1.6 }}>
+            ผลการคัดกรองจะแสดงที่นี่หลังประมวลผล
+          </p>
         </div>
       ) : (
         <div>
@@ -1074,21 +1108,6 @@ function ResultCard({ result, image }) {
               การลุกลามของต่อมน้ำเหลือง และการแพร่กระจาย ซึ่งต้องอาศัยผลตรวจทางรังสีวิทยา (CT/PET) ร่วมกับการประเมินของแพทย์
             </p>
           </div>
-
-          <p
-            style={{
-              fontSize: 12,
-              color: T.inkSoft,
-              marginTop: 16,
-              lineHeight: 1.6,
-              background: T.bg,
-              borderRadius: 10,
-              padding: "10px 12px",
-              textAlign: "center",
-            }}
-          >
-            เว็บไซต์นี้เป็นเว็บไซต์ทดลอง
-          </p>
         </div>
       )}
 
@@ -1419,26 +1438,6 @@ function ScreeningPage({ email, onLogout }) {
           </div>
         </div>
       </div>
-
-      <div className="lsa-no-print" style={{ maxWidth: 1200, margin: "14px auto 0", padding: "0 40px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            background: "#FBF3DC",
-            border: "1px solid #EFDDA0",
-            borderRadius: 12,
-            padding: "10px 16px",
-            fontSize: 12.5,
-            color: "#7A5E1B",
-          }}
-        >
-          ⚠️ <b>เวอร์ชันต้นแบบ (Prototype)</b> — หน้าอัปโหลด/ประมวลผลด้านบนยังไม่ได้เชื่อมต่อโมเดล AI จริง
-          ผลลัพธ์เป็นตัวอย่างสาธิต UX เท่านั้น
-        </div>
-      </div>
-
       <div
         style={{
           maxWidth: 1200,
